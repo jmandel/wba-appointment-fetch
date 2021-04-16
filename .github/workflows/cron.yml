@@ -1,0 +1,21 @@
+on:
+  schedule:
+    - cron:  '3/5 * * * *'
+jobs:
+  fetch-appointments:
+    runs-on: ubuntu-latest
+    steps:
+    - run: |
+        mkdir dist
+        cd dist
+        git clone .. .
+        git checkout gh-pages
+        rm -rf .git
+    - run: npm ci
+    - run: npm run fetch
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./dist
+        force_orphan: true
