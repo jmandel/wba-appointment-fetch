@@ -107,6 +107,7 @@ async function tick() {
           .flatMap((r) =>
             r.stores.map((s) => ({
               resourceType: "Slot",
+              status: "free",
               id: s.storeNumber,
               schedule: {
                 reference: `Schedule/${s.storeNumber}`,
@@ -153,9 +154,13 @@ async function tick() {
         type: "Schedule",
         url: `${BULK_BASE_URL}schedules.ndjson`,
       },
-      ...nextQueryArray.map((q) => ({
+      ..._.sortBy(nextQueryArray, (q) => canonical(q)).map((q) => ({
         type: "Slot",
         url: `${BULK_BASE_URL}${queryOutputFilename(q)}`,
+        extension: {
+          state: [q.state],
+          currentAsOf: q.lastUpdated,
+        },
       })),
     ],
     error: [],

@@ -11,6 +11,7 @@ do
   git add \$bulk-publish
   git commit -a -m "Fetched files"
   git reset $(git commit-tree HEAD^{tree} -m "Fetched files")
+  git push -f
   cd ..
   CURRENT_TIME=$(date +%s)
   SLEEP_TARGET=$(($TARGET_TIME - $CURRENT_TIME))

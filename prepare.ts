@@ -2,12 +2,15 @@ import { Command } from "commander";
 import { createHash } from "crypto";
 import fs from "fs";
 import _, { last } from "lodash";
+import storesRaw from "./vendor/CDCData/_stores_4_16_2021.json";
 
-import stores from "./vendor/CDCData/_stores_4_16_2021.json";
+type Store = typeof storesRaw[number]
 
-type Store = typeof stores[number]
 
 const ZIPCODES_PER_QUERY = 50;
+const SKIP_BROKEN_JURISDICTIONS = ["VI"];
+
+const stores = storesRaw.filter(s => !SKIP_BROKEN_JURISDICTIONS.includes(s.address.state))
 
 interface Resource {
   resourceType: string;
@@ -29,7 +32,7 @@ const storeToLocation = (store: Store): Resource => ({
   id: store.storeNumber,
   name: `${store.name || "Walgreens"} #${store.storeNumber}`,
   telecom: [
-    { system: "phone", value: store.phone },
+    ...(store.phone ? [{ system: "phone", value: store.phone }] : []),
     {
       system: "url",
       value: `https://www.walgreens.com/locator/store/id=${store.storeNumber}`,
