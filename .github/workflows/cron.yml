@@ -11,13 +11,15 @@ jobs:
       with:
         fetch-depth: 0
     - run: |
+        git branch -a
         mkdir dist
         cd dist
         pwd
-        env
         ls -la ..
         git clone .. .
+        echo "Cloned"
         git checkout gh-pages
+        echo "pages"
         rm -rf .git
     - run: npm ci
     - run: npm run fetch
