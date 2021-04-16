@@ -6,7 +6,7 @@ import queryFile from "./queries/tx.json";
 
 const API_ENDPOINT = process.env["WBA_API_ENDPOINT"];
 const API_KEY = process.env["WBA_API_KEY"];
-const QUERIES_PER_RUN = parseInt(process.env["WBA_API_LIMIT"] || "25")
+const QUERIES_PER_RUN = parseInt(process.env["WBA_API_LIMIT"] || "10")
 
 const epoch = new Date(0).toISOString();
 
@@ -76,7 +76,9 @@ async function runQueries(nextQueries: Query[]): Promise<QueryWithResult[]> {
       console.log("Got", qResult);
       results[i].result = qResult;
       results[i].lastUpdated = new Date().toISOString();
-    } catch (ex) {}
+    } catch (ex) {
+      console.log("Query failed", ex)
+    }
   }
 
   return results;
