@@ -18,6 +18,10 @@ jobs:
         rm -rf .git
     - run: npm ci
     - run: npm run fetch
+      with:
+        WBA_API_ENDPOINT: ${{ secrets.WBA_API_ENDPOINT }}
+        WBA_API_KEY: ${{ secrets.WBA_API_KEY }}
+        WBA_API_LIMIT: ${{ secrets.WBA_API_LIMIT }}
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
       with:
