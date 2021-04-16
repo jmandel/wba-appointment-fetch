@@ -13,6 +13,9 @@ jobs:
     - run: |
         mkdir dist
         cd dist
+        pwd
+        env
+        ls -la ..
         git clone .. .
         git checkout gh-pages
         rm -rf .git
