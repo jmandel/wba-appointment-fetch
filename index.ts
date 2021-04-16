@@ -6,7 +6,7 @@ import queryFile from "./queries/tx.json";
 
 const API_ENDPOINT = process.env["WBA_API_ENDPOINT"];
 const API_KEY = process.env["WBA_API_KEY"];
-const QUERIES_PER_RUN = parseInt(process.env["WBA_API_LIMIT"] || "10")
+const QUERIES_PER_RUN = parseInt(process.env["WBA_API_LIMIT"] || "10");
 
 const epoch = new Date(0).toISOString();
 
@@ -23,7 +23,6 @@ interface QueryWithResult extends Query {
   result: { zipcode: string; stores: { storeNumber: string }[] }[];
 }
 
-
 const canonical = (q: Query): string =>
   `state=${q.state}&zipcodes=${q.zipcodes.join(",")}`;
 
@@ -37,7 +36,7 @@ const indexQueries = (qs: Query[]): QueryLog =>
     return acc;
   }, {});
 
-async function getLastQueryes() {
+async function getHihstoricalQueries() {
   let queried: Query[] = [];
   try {
     queried = JSON.parse(fs.readFileSync("./dist/queries.json").toString());
@@ -46,11 +45,11 @@ async function getLastQueryes() {
   }
   return indexQueries(queried);
 }
-async function getNextQueries(lastQueryLog: QueryLog) {
+async function getNextQueries(historicalQueryLog: QueryLog) {
   const nextQueries = _.chain(queryFile)
     .map((q) => ({
       ...q,
-      lastUpdated: lastQueryLog[canonical(q)]?.lastUpdated || epoch,
+      lastUpdated: historicalQueryLog[canonical(q)]?.lastUpdated || epoch,
     }))
     .sortBy(
       (v) => v.lastUpdated,
@@ -77,7 +76,7 @@ async function runQueries(nextQueries: Query[]): Promise<QueryWithResult[]> {
       results[i].result = qResult;
       results[i].lastUpdated = new Date().toISOString();
     } catch (ex) {
-      console.log("Query failed", ex)
+      console.log("Query failed", ex);
     }
   }
 
@@ -85,7 +84,7 @@ async function runQueries(nextQueries: Query[]): Promise<QueryWithResult[]> {
 }
 
 function daysFromNow(n: number) {
-  let d =  new Date().getTime() + 1000 * 60 * 60 * 25 * n
+  let d = new Date().getTime() + 1000 * 60 * 60 * 25 * n;
   let ret = new Date(d);
   ret.setHours(0);
   ret.setMinutes(0);
@@ -95,8 +94,8 @@ function daysFromNow(n: number) {
 }
 
 async function tick() {
-  const lastQueryLog = await getLastQueryes();
-  const nextQueries = await getNextQueries(lastQueryLog);
+  const historicalQueryLog = await getHihstoricalQueries();
+  const nextQueries = await getNextQueries(historicalQueryLog);
 
   console.log("Next Queries", nextQueries);
   const qResults = await runQueries(nextQueries);
@@ -108,24 +107,33 @@ async function tick() {
         `./dist/Slot-${sha256(canonical(r))}.ndjson`,
         r.result
           .flatMap((r) =>
-            r.stores.map((s) => ({resourceType: "Slot", id: s.storeNumber, start: daysFromNow(0), end: daysFromNow(5), deetsToFix: s }))
+            r.stores.map((s) => ({
+              resourceType: "Slot",
+              id: s.storeNumber,
+              start: daysFromNow(0),
+              end: daysFromNow(5),
+              deetsToFix: s,
+            }))
           )
           .map((store) => JSON.stringify(store))
           .join("\n")
       );
 
-      lastQueryLog[canonical(r)] = {
+      historicalQueryLog[canonical(r)] = {
         ...r,
         result: undefined,
       } as Query;
     }
   }
 
+  const queryFileIndexed = indexQueries(queryFile);
   fs.writeFileSync(
     "./dist/queries.json",
     JSON.stringify(
       _.sortBy(
-        Object.values(lastQueryLog),
+        Object.entries(historicalQueryLog)
+          .filter(([k, q]) => k in queryFileIndexed)
+          .map(([k, v]) => v),
         (q) => q.lastUpdated,
         (q) => canonical(q)
       ),
