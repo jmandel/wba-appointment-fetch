@@ -7,6 +7,7 @@ jobs:
   fetch-appointments:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v2
     - run: |
         mkdir dist
         cd dist
