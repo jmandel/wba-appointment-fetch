@@ -14,13 +14,8 @@ jobs:
         git branch -a
         mkdir dist
         cd dist
-        pwd
-        ls -la ..
-        git clone .. .
-        echo "Cloned"
-        git branch -a
+        cp -r ../.git .
         git checkout gh-pages
-        echo "pages"
         rm -rf .git
     - run: npm ci
     - run: npm run fetch
