@@ -1,6 +1,8 @@
 on:
   schedule:
     - cron:  '3/5 * * * *'
+  workflow_dispatch:
+
 jobs:
   fetch-appointments:
     runs-on: ubuntu-latest
