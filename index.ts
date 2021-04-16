@@ -11,7 +11,7 @@ const QUERIES_PER_RUN = parseInt(process.env["WBA_API_LIMIT"] || "10")
 const epoch = new Date(0).toISOString();
 
 const sha256 = (v: string): string =>
-  createHash("sha256").update(v, "utf-8").digest().toString("base64url");
+  createHash("sha256").update(v, "utf-8").digest().toString("hex");
 
 interface Query {
   state: string;
