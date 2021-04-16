@@ -18,6 +18,7 @@ jobs:
         ls -la ..
         git clone .. .
         echo "Cloned"
+        git branch -a
         git checkout gh-pages
         echo "pages"
         rm -rf .git
