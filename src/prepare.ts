@@ -84,10 +84,10 @@ export const queries = _.chain(stores)
 export const locations = stores.map(storeToLocation);
 export const schedules = locations.map(locationToSchedule);
 
-export const storesByNumber: StoreDB = stores.reduce((acc: StoreDB, store) => {
-  acc[store.storeNumber] = store;
-  return acc;
-}, {});
+export const storesByNumber: StoreDB = stores.reduce((acc: StoreDB, store) => ({
+  ...acc,
+  [store.storeNumber]: store
+}), {});
 
 export default {
   queries,

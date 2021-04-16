@@ -19,10 +19,10 @@ const canonical = (q: Query): string => `state=${q.state}&zipcodes=${q.zipcodes.
 const queryOutputFilename = (q: Query): string => `Slot-${sha256(canonical(q))}.ndjson`;
 
 const indexQueries = (qs: readonly Query[]): QueryDB =>
-  qs.reduce((acc: QueryDB, q) => {
-    acc[canonical(q)] = JSON.parse(JSON.stringify(q));
-    return acc;
-  }, {});
+  qs.reduce((acc: QueryDB, q) => ({
+    ...acc,
+    [canonical(q)]: JSON.parse(JSON.stringify(q))
+  }), {});
 
 async function getHistoricalQueries() {
   let queried: Query[] = [];
