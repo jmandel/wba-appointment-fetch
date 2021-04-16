@@ -17,11 +17,12 @@ const epoch = new Date(0).toISOString();
 const sha256 = (v: string): string => createHash("sha256").update(v, "utf-8").digest().toString("hex");
 const canonical = (q: Query): string => `state=${q.state}&zipcodes=${q.zipcodes.join(",")}`;
 const queryOutputFilename = (q: Query): string => `Slot-${sha256(canonical(q))}.ndjson`;
+const deepCopy = <T>(v: T): T => JSON.parse(JSON.stringify(v))
 
 const indexQueries = (qs: readonly Query[]): QueryDB =>
   qs.reduce((acc: QueryDB, q) => ({
     ...acc,
-    [canonical(q)]: JSON.parse(JSON.stringify(q))
+    [canonical(q)]: deepCopy(q)
   }), {});
 
 async function getHistoricalQueries() {
@@ -48,7 +49,7 @@ async function getFutureQueries(queries: Query[], historicalQueryDB: QueryDB): P
 }
 
 async function runQueries(nextQueries: Query[]): Promise<QueryWithResult[]> {
-  let results = JSON.parse(JSON.stringify(nextQueries)) as QueryWithResult[];
+  let results = deepCopy(nextQueries) as QueryWithResult[];
   for (const [i, q] of nextQueries.entries()) {
     try {
       const qResult = (await got(`${API_ENDPOINT}?${canonical(q)}`, {
