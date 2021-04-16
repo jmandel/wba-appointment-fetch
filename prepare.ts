@@ -1,11 +1,8 @@
-import { Command } from "commander";
-import { createHash } from "crypto";
-import fs from "fs";
-import _, { last } from "lodash";
+import _ from "lodash";
 import storesRaw from "./vendor/CDCData/_stores_4_16_2021.json";
 
 type Store = typeof storesRaw[number]
-
+type StoreDB = Record<string, Store>
 
 const ZIPCODES_PER_QUERY = 50;
 const SKIP_BROKEN_JURISDICTIONS = ["VI"];
@@ -18,7 +15,7 @@ interface Resource {
   [key: string]: unknown;
 }
 
-const URLs = {
+export const URLs = {
   bookingLink: "http://fhir-registry.smarthealthit.org/StructureDefinition/booking-deep-link",
   bookingPhone: "http://fhir-registry.smarthealthit.org/StructureDefinition/booking-phone",
   slotCapacity: "http://fhir-registry.smarthealthit.org/StructureDefinition/slot-capacity",
@@ -87,7 +84,6 @@ export const queries = _.chain(stores)
 export const locations = stores.map(storeToLocation);
 export const schedules = locations.map(locationToSchedule);
 
-type StoreDB = Record<string, Store>
 export const storesByNumber: StoreDB = stores.reduce((acc: StoreDB, store) => {
   acc[store.storeNumber] = store;
   return acc;
@@ -98,12 +94,5 @@ export default {
   locations,
   schedules,
   storesByNumber,
-  URLs: URLs
+  URLs
 };
-
-//_.chain(stores).groupBy(s => s.address.state).flatMap(sg => )
-// const queries = _.chunk(tx, 50).map((c) => ({
-//   state: "TX",
-//   zipcodes: c,
-// }));
-//console.log(JSON.stringify(queries, null, 2));

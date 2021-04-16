@@ -22,6 +22,7 @@ jobs:
         WBA_API_ENDPOINT: ${{ secrets.WBA_API_ENDPOINT }}
         WBA_API_KEY: ${{ secrets.WBA_API_KEY }}
         WBA_API_LIMIT: ${{ secrets.WBA_API_LIMIT }}
+        WBA_BULK_BASE_URL: ${{ secrets.WBA_BULK_BASE_URL }}
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
       with:

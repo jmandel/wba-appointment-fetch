@@ -3,9 +3,8 @@ import fs from "fs";
 import got from "got";
 import _ from "lodash";
 import touch from "touch";
-import StoreDetails from "./prepare";
-
-const URLs = StoreDetails.URLs;
+import type { Query, QueryDB, QueryWithResult } from "./interfaces";
+import StoreDetails, { URLs } from "./prepare";
 
 const API_ENDPOINT = process.env["WBA_API_ENDPOINT"];
 const API_KEY = process.env["WBA_API_KEY"];
@@ -16,26 +15,11 @@ const BULK_BASE_URL = process.env["WBA_BULK_BASE_URL"];
 const epoch = new Date(0).toISOString();
 
 const sha256 = (v: string): string => createHash("sha256").update(v, "utf-8").digest().toString("hex");
+const canonical = (q: Query): string => `state=${q.state}&zipcodes=${q.zipcodes.join(",")}`;
 const queryOutputFilename = (q: Query): string => `Slot-${sha256(canonical(q))}.ndjson`;
 
-interface Query {
-  state: string;
-  zipcodes: string[];
-  lastUpdated?: string;
-}
-
-interface QueryWithResult extends Query {
-  result: { zipcode: string; stores: { storeNumber: string }[] }[];
-}
-
-const canonical = (q: Query): string => `state=${q.state}&zipcodes=${q.zipcodes.join(",")}`;
-
-interface QueryLog {
-  [k: string]: Query;
-}
-
-const indexQueries = (qs: Query[]): QueryLog =>
-  qs.reduce((acc: QueryLog, q) => {
+const indexQueries = (qs: readonly Query[]): QueryDB =>
+  qs.reduce((acc: QueryDB, q) => {
     acc[canonical(q)] = JSON.parse(JSON.stringify(q));
     return acc;
   }, {});
@@ -50,11 +34,11 @@ async function getHistoricalQueries() {
   return indexQueries(queried);
 }
 
-async function getFutureQueries(queries: Query[], historicalQueryLog: QueryLog) {
+async function getFutureQueries(queries: Query[], historicalQueryDB: QueryDB): Promise<Query[]> {
   return _.chain(queries)
     .map((q) => ({
       ...q,
-      lastUpdated: historicalQueryLog[canonical(q)]?.lastUpdated || epoch,
+      lastUpdated: historicalQueryDB[canonical(q)]?.lastUpdated || epoch,
     }))
     .sortBy(
       (v) => v.lastUpdated,
@@ -73,7 +57,6 @@ async function runQueries(nextQueries: Query[]): Promise<QueryWithResult[]> {
           apiKey: API_KEY,
         },
       }).json()) as QueryWithResult["result"];
-
       console.log("Got", qResult);
       results[i].result = qResult;
       results[i].lastUpdated = new Date().toISOString();
@@ -91,16 +74,10 @@ function daysFromNow(n: number) {
   return `${ret.toISOString().slice(0, 10)}T00:00:00.000Z`;
 }
 
-async function tick() {
-  const historicalQueryLog = await getHistoricalQueries();
-  const allFutureQueries = await getFutureQueries(StoreDetails.queries, historicalQueryLog);
-  const queriesThisTick = allFutureQueries.slice(0, API_LIMIT);
-  const qResults = await runQueries(queriesThisTick);
-
-  const nextQueryLog = indexQueries(allFutureQueries);
-  for (const r of qResults) {
+async function outputResults(results: QueryWithResult[], allFutureQueries: readonly Query[]) {
+  const nextQueryDB = indexQueries(allFutureQueries);
+  for (const r of results) {
     if (r.result) {
-      console.log("Result", r.result);
       fs.writeFileSync(
         `./dist/${queryOutputFilename(r)}`,
         r.result
@@ -126,12 +103,12 @@ async function tick() {
           .join("\n")
       );
 
-      nextQueryLog[canonical(r)].lastUpdated = r.lastUpdated;
+      nextQueryDB[canonical(r)].lastUpdated = r.lastUpdated;
     }
   }
 
   const nextQueryArray = _.sortBy(
-    Object.values(nextQueryLog),
+    Object.values(nextQueryDB),
     (q) => q.lastUpdated,
     (q) => canonical(q)
   );
@@ -169,6 +146,14 @@ async function tick() {
   fs.writeFileSync(`./dist/$bulk-publish`, JSON.stringify(manifest, null, 2));
   fs.writeFileSync(`./dist/locations.ndjson`, StoreDetails.locations.map((l) => JSON.stringify(l)).join("\n"));
   fs.writeFileSync(`./dist/schedules.ndjson`, StoreDetails.schedules.map((l) => JSON.stringify(l)).join("\n"));
+}
+
+async function tick() {
+  const historicalQueryDB = await getHistoricalQueries();
+  const allFutureQueries = await getFutureQueries(StoreDetails.queries, historicalQueryDB);
+  const queriesThisTick = allFutureQueries.slice(0, API_LIMIT);
+  const results = await runQueries(queriesThisTick);
+  await outputResults(results, allFutureQueries);
 }
 
 tick();
