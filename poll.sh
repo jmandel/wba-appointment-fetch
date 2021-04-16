@@ -7,6 +7,8 @@ do
   TARGET_TIME=$(date -d "+ $POLLING_INTERVAL_S seconds" +%s)
   npm run fetch
   cd dist
+  git add *.ndjson
+  git add \$bulk-publish
   git commit -a -m "Fetched files"
   git reset $(git commit-tree HEAD^{tree} -m "Fetched files")
   cd ..
