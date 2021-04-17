@@ -16,3 +16,5 @@ This approach is a best-effort translation from WBA's current API. The only info
 * All slots include a fixed small capacity estimate of 5, helping to convey that these are stores rather than mass vaccination sites.
 
 * `transactionTime` in the `$bulk-publish` manifest reflects the time of the *oldest data* in the payload; this is relevant because API rate limiting on the underlying source information means that fetching a full data set takes ~1 hour, which gives us a rolling window of fresh data
+
+* Booking links are generic (https://www.walgreens.com/findcare/vaccination/covid-19) because there is not way to provide context about location or dates as URL parameters into the booking portal
