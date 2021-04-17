@@ -1,5 +1,7 @@
 ## SMART Scheduling Links Aggregator for WBA
 
+**Data published at: https://github.com/jmandel/wba-appointment-fetch/blob/gh-pages/$bulk-publish**
+
 This is a proof of concept to:
 
 * Query Walgreens COVID-19 Appointment API
