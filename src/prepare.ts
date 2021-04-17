@@ -72,12 +72,12 @@ const locationToSchedule = (location: Resource): Resource => ({
 });
 
 export const queries = _.chain(stores)
+  .sortBy((s) => s.address.state, (s) => s.address.zipcode)
   .groupBy((s) => s.address.state)
   .flatMap((stores, state) =>
     _.chain(stores)
       .map((s) => s.address.zipcode)
       .uniq()
-      .sortBy()
       .chunk(ZIPCODES_PER_QUERY).map((zipcodes) => ({
         state,
         zipcodes,
