@@ -4,8 +4,8 @@
 
 This is a proof of concept to:
 
-* Query Walgreens COVID-19 Appointment API
-* Generate SMART Scheduling Links data outputs in FHIR
+* Query Walgreens COVID-19 Appointment API continuously (subject to rate limits)
+* Generate [SMART Scheduling Links](https://github.com/smart-on-fhir/smart-scheduling-links) data outputs in FHIR
 
 ### Notes and limitations
 
