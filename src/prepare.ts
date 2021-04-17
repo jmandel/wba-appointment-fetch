@@ -76,7 +76,8 @@ export const queries = _.chain(stores)
   .flatMap((s) =>
     _.chain(s)
       .uniq()
-      .chunk(s, ZIPCODES_PER_QUERY).map((chunk) => ({
+      .sortBy()
+      .chunk(ZIPCODES_PER_QUERY).map((chunk) => ({
         state: chunk[0].address.state,
         zipcodes: chunk.map((s) => s.address.zipcode),
     }))
