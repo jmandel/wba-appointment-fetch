@@ -1,6 +1,6 @@
 ## SMART Scheduling Links Aggregator for WBA
 
-**Data published at: https://github.com/jmandel/wba-appointment-fetch/blob/gh-pages/$bulk-publish**
+**Data published at: https://raw.githubusercontent.com/jmandel/wba-appointment-fetch/gh-pages/$bulk-publish**
 
 This is a proof of concept to:
 
