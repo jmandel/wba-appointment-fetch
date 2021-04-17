@@ -97,6 +97,10 @@ async function outputResults(results: QueryWithResult[], allFutureQueries: reado
                   url: URLs.slotCapacity,
                   valueInteger: DEFAULT_SLOT_CAPACITY,
                 },
+                {
+                  url: URLs.bookingLink,
+                  valueUrl: "https://www.walgreens.com/findcare/vaccination/covid-19",
+                },
               ],
             }))
           )
