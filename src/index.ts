@@ -70,7 +70,7 @@ async function runQueries(nextQueries: Query[]): Promise<QueryWithResult[]> {
 }
 
 function daysFromNow(n: number) {
-  let d = new Date().getTime() + 1000 * 60 * 60 * 25 * n;
+  let d = new Date().getTime() + 1000 * 60 * 60 * 24 * n;
   let ret = new Date(d);
   return `${ret.toISOString().slice(0, 10)}T00:00:00.000Z`;
 }
