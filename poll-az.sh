@@ -2,6 +2,7 @@
 
 POLLING_INTERVAL_S=50
 
+mkdir -p dist
 cd dist
 az storage blob download-batch  --destination . --source $PUBLISH_LOCATION
 cd ..
