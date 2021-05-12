@@ -1,6 +1,6 @@
 #!/bin/bash
 
-POLLING_INTERVAL_S=220
+POLLING_INTERVAL_S=50
 
 cd dist
 az storage blob download-batch  --destination . --source $PUBLISH_LOCATION

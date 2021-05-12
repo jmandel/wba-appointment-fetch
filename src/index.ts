@@ -101,6 +101,10 @@ async function outputResults(results: QueryWithResult[], allFutureQueries: reado
                   url: URLs.bookingLink,
                   valueUrl: "https://www.walgreens.com/findcare/vaccination/covid-19",
                 },
+                {
+                  url: URLs.bookingPhone,
+                  valueUrl: "1-800-925-4733",
+                },
               ],
             }))
           )
