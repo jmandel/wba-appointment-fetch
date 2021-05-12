@@ -1,6 +1,6 @@
 #!/bin/bash
 
-POLLING_INTERVAL_S=50
+POLLING_INTERVAL_S=${WBA_POLLING_INTERVAL:-50}
 
 mkdir -p dist
 cd dist
