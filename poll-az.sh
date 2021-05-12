@@ -10,7 +10,7 @@ cd ..
 while :
 do
   TARGET_TIME=$(date -d "+ $POLLING_INTERVAL_S seconds" +%s)
-  npm run fetch
+  npm run fetch-js
   cd dist
   az storage blob upload-batch  --source .  --destination $PUBLISH_LOCATION
   cd ..

@@ -4,6 +4,8 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
+    "build": "tsc",
+    "fetch-js": "node jsdist/index.ts",
     "fetch": "ts-node src/index.ts"
   },
   "author": "Josh Mandel",
