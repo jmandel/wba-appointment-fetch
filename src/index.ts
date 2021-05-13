@@ -124,10 +124,6 @@ async function outputResults(results: QueryWithResult[], allFutureQueries: reado
     (q) => canonical(q)
   );
 
-  nextQueryArray.forEach((q) => {
-    touch.sync(`./dist/${queryOutputFilename(q)}`);
-  });
-
   fs.writeFileSync("./dist/queries.json", JSON.stringify(nextQueryArray, null, 2));
 
   const manifest = {
