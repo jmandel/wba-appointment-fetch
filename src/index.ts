@@ -105,7 +105,7 @@ async function outputResults(results: QueryWithResult[], allFutureQueries: reado
                 },
                 {
                   url: URLs.bookingPhone,
-                  valueUrl: "1-800-925-4733",
+                  valueString: "1-800-925-4733",
                 },
               ],
             }))
