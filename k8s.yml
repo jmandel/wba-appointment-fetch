@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: wba-scheduling-links
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: runner
+  namespace: wba-scheduling-links
+data:
+  entry.sh: |
+    #!/bin/bash
+    curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+    git clone -b az https://github.com/jmandel/wba-appointment-fetch
+    cd wba-appointment-fetch
+    npm ci
+    npm run build
+    ./poll-az.sh
+    exit 1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: publisher
+  namespace: wba-scheduling-links
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: publisher
+  template:
+    metadata:
+      labels:
+        app: publisher
+    spec:
+      volumes:
+      - name: runner
+        configMap:
+          name: runner
+      containers:
+      - name: publisher
+        image: "node:16"
+        volumeMounts:
+        - name: runner
+          mountPath: /runner
+        command: ["/bin/bash", "/runner/entry.sh"]
+        envFrom:
+        - secretRef:
+            name: publisher
