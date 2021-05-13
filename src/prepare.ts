@@ -3,7 +3,7 @@ import fs from "fs";
 //import storesRaw from "./vendor/CDCData/_stores_4_16_2021.json";
 
 type Store = {
-    "npiCode": string,
+    "npiCode"?: string,
     "storeNumber": string,
     "latitude": string,
     "longitude": string,
@@ -75,10 +75,10 @@ const storeToLocation = (store: Store): Resource => ({
       system: URLs.vtrcks,
       value: `unknown VTrckS pin for ${store.storeNumber}`,
     },
-    {
+    ...(store.npiCode ? [{
       system: "http://hl7.org/fhir/sid/us-npi",
       value: store.npiCode
-    },
+    }] : []),
     {
       system: "https://walgreens.com",
       value: `${store.storeNumber}`,
