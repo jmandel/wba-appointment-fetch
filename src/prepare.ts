@@ -131,5 +131,3 @@ export default {
   storesByNumber,
   URLs
 };
-
-console.log(JSON.stringify(locations, null, 2))
