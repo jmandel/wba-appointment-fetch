@@ -1,12 +1,36 @@
 import _ from "lodash";
-import storesRaw from "./vendor/CDCData/_stores_4_16_2021.json";
+import fs from "fs";
+//import storesRaw from "./vendor/CDCData/_stores_4_16_2021.json";
 
-type Store = typeof storesRaw[number]
+type Store = {
+    "npiCode": string,
+    "storeNumber": string,
+    "latitude": string,
+    "longitude": string,
+    "address": {
+      "zip": string,
+      "city": "Elmwood Park",
+      "street": "2828 N HARLEM AVE",
+      "county": string,
+      "state": string
+    },
+    "pharmacyPhoneNumber": {
+      "number": string,
+      "areaCode": string,
+    },
+    "timeZone": string,
+    "phone": {
+      "number": string,
+      "areaCode": string,
+    },
+    "storeBrand": string
+  }; 
 type StoreDB = Record<string, Store>
 
 const ZIPCODES_PER_QUERY = 50;
 const SKIP_BROKEN_JURISDICTIONS = ["VI"];
 
+const storesRaw: Store[] = JSON.parse(fs.readFileSync("./src/vendor/storeDetails.json").toString());
 const stores = storesRaw.filter(s => !SKIP_BROKEN_JURISDICTIONS.includes(s.address.state))
 
 interface Resource {
@@ -27,24 +51,33 @@ export const URLs = {
 const storeToLocation = (store: Store): Resource => ({
   resourceType: "Location",
   id: store.storeNumber,
-  name: `${store.name || "Walgreens"} #${store.storeNumber}`,
+  name: `${store.storeBrand || "Walgreens"} #${store.storeNumber}`,
   telecom: [
-    ...(store.phone ? [{ system: "phone", value: store.phone }] : []),
+    ...(store.pharmacyPhoneNumber ? [{ system: "phone", value: `${store.pharmacyPhoneNumber.areaCode}-${store.pharmacyPhoneNumber.number}` }] : []),
     {
       system: "url",
       value: `https://www.walgreens.com/locator/store/id=${store.storeNumber}`,
     },
   ],
   address: {
-    line: [store.address.line1],
+    line: [store.address.street],
     city: store.address.city,
     state: store.address.state,
-    postalCode: store.address.zipcode,
+    postalCode: store.address.zip,
+    district: store.address.county
+  },
+  position: {
+    longitude: parseFloat(store.longitude),
+    latitude: parseFloat(store.latitude),
   },
   identifier: [
     {
       system: URLs.vtrcks,
       value: `unknown VTrckS pin for ${store.storeNumber}`,
+    },
+    {
+      system: "http://hl7.org/fhir/sid/us-npi",
+      value: store.npiCode
     },
     {
       system: "https://walgreens.com",
@@ -72,11 +105,11 @@ const locationToSchedule = (location: Resource): Resource => ({
 });
 
 export const queries = _.chain(stores)
-  .sortBy((s) => s.address.state, (s) => s.address.zipcode)
+  .sortBy((s) => s.address.state, (s) => s.address.zip)
   .groupBy((s) => s.address.state)
   .flatMap((stores, state) =>
     _.chain(stores)
-      .map((s) => s.address.zipcode)
+      .map((s) => s.address.zip)
       .uniq()
       .chunk(ZIPCODES_PER_QUERY).map((zipcodes) => ({
         state,
@@ -98,3 +131,5 @@ export default {
   storesByNumber,
   URLs
 };
+
+console.log(JSON.stringify(locations, null, 2))

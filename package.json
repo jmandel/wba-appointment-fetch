@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "fetch-js": "node jsdist/index.js",
-    "fetch": "ts-node src/index.ts"
+    "fetch": "ts-node src/index.ts",
+    "refresh-stores": "ts-node src/stores.ts"
   },
   "author": "Josh Mandel",
   "license": "MIT",
