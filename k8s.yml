@@ -12,7 +12,7 @@ data:
   entry.sh: |
     #!/bin/bash
     curl -sL https://aka.ms/InstallAzureCLIDeb | bash
-    git clone -b az https://github.com/jmandel/wba-appointment-fetch
+    git clone https://github.com/jmandel/wba-appointment-fetch
     cd wba-appointment-fetch
     npm ci
     npm run build
