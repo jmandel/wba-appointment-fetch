@@ -1,17 +1,17 @@
 #!/bin/bash
 
-POLLING_INTERVAL_S=300
+POLLING_INTERVAL_S=220
+
+cd dist
+az storage blob download-batch  --destination . --source $PUBLISH_LOCATION
+cd ..
 
 while :
 do
   TARGET_TIME=$(date -d "+ $POLLING_INTERVAL_S seconds" +%s)
   npm run fetch
   cd dist
-  git add *.ndjson
-  git add \$bulk-publish
-  git commit -a -m "Fetched files"
-  git reset $(git commit-tree HEAD^{tree} -m "Fetched files")
-  git push -f
+  az storage blob upload-batch  --source .  --destination $PUBLISH_LOCATION
   cd ..
   CURRENT_TIME=$(date +%s)
   SLEEP_TARGET=$(($TARGET_TIME - $CURRENT_TIME))

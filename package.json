@@ -4,7 +4,10 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "fetch": "ts-node src/index.ts"
+    "build": "tsc",
+    "fetch-js": "node jsdist/index.js",
+    "fetch": "ts-node src/index.ts",
+    "refresh-stores": "ts-node src/stores.ts"
   },
   "author": "Josh Mandel",
   "license": "MIT",

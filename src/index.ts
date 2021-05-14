@@ -11,6 +11,7 @@ const API_KEY = process.env["WBA_API_KEY"];
 const API_LIMIT = parseInt(process.env["WBA_API_LIMIT"] || "10");
 const DEFAULT_SLOT_CAPACITY = parseInt(process.env["WBA_DEFAULT_SLOT_CAPACITY"] || "5");
 const BULK_BASE_URL = process.env["WBA_BULK_BASE_URL"];
+const QPS = parseInt(process.env["WBA_QPS"] || "1")
 
 const epoch = new Date(0).toISOString();
 
@@ -53,7 +54,7 @@ async function runQueries(nextQueries: Query[]): Promise<QueryWithResult[]> {
   for (const [i, q] of nextQueries.entries()) {
     try {
       const qResult = (await got(`${API_ENDPOINT}?${canonical(q)}`, {
-        timeout: 5000,
+        timeout: 3000,
         headers: {
           apiKey: API_KEY,
         },
@@ -64,6 +65,7 @@ async function runQueries(nextQueries: Query[]): Promise<QueryWithResult[]> {
     } catch (ex) {
       console.log("Query failed", ex);
     }
+    await new Promise(resolve => setTimeout(resolve, 1000 / QPS))
   }
 
   return results;
@@ -101,6 +103,10 @@ async function outputResults(results: QueryWithResult[], allFutureQueries: reado
                   url: URLs.bookingLink,
                   valueUrl: "https://www.walgreens.com/findcare/vaccination/covid-19",
                 },
+                {
+                  url: URLs.bookingPhone,
+                  valueString: "1-800-925-4733",
+                },
               ],
             }))
           )
@@ -117,10 +123,6 @@ async function outputResults(results: QueryWithResult[], allFutureQueries: reado
     (q) => q.lastUpdated,
     (q) => canonical(q)
   );
-
-  nextQueryArray.forEach((q) => {
-    touch.sync(`./dist/${queryOutputFilename(q)}`);
-  });
 
   fs.writeFileSync("./dist/queries.json", JSON.stringify(nextQueryArray, null, 2));
 
