@@ -13,7 +13,7 @@ do
   TARGET_TIME=$(date -d "+ $POLLING_INTERVAL_S seconds" +%s)
   npm run fetch-js
   cd dist
-  az storage blob upload-batch  --source .  --destination $PUBLISH_LOCATION
+  az storage blob upload-batch  --source .  --destination $PUBLISH_LOCATION --overwrite
   rm *.ndjson
   cd ..
   CURRENT_TIME=$(date +%s)
