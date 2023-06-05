@@ -18,3 +18,19 @@ This approach is a best-effort translation from WBA's current API. The only info
 * `transactionTime` in the `$bulk-publish` manifest reflects the time of the *oldest data* in the payload; this is relevant because API rate limiting on the underlying source information means that fetching a full data set takes ~1 hour, which gives us a rolling window of fresh data
 
 * Booking links are generic (https://www.walgreens.com/findcare/vaccination/covid-19) because there is not way to provide context about location or dates as URL parameters into the booking portal
+
+---
+
+## Dev notes
+
+Env vars control:
+
+
+* "AZURE_STORAGE_ACCOUNT"
+* "AZURE_STORAGE_SAS_TOKEN":
+* "PUBLISH_LOCATION"
+* "WBA_API_ENDPOINT"
+* "WBA_API_KEY"
+* "WBA_API_LIMIT"
+* "WBA_BULK_BASE_URL"
+* "WBA_POLLING_INTERVAL"
