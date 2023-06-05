@@ -11,6 +11,7 @@ const API_KEY = process.env["WBA_API_KEY"];
 const API_LIMIT = parseInt(process.env["WBA_API_LIMIT"] || "10");
 const DEFAULT_SLOT_CAPACITY = parseInt(process.env["WBA_DEFAULT_SLOT_CAPACITY"] || "5");
 const BULK_BASE_URL = process.env["WBA_BULK_BASE_URL"];
+const STORAGE_SAS = process.env["WBA_STORAGE_SAS"] || "?";
 const QPS = parseInt(process.env["WBA_QPS"] || "1")
 
 const epoch = new Date(0).toISOString();
@@ -128,19 +129,19 @@ async function outputResults(results: QueryWithResult[], allFutureQueries: reado
 
   const manifest = {
     transactionTime: nextQueryArray[0].lastUpdated, // we're only as current as our least current query
-    request: `${BULK_BASE_URL}$bulk-publish`,
+    request: `${BULK_BASE_URL}$bulk-publish${STORAGE_SAS}`,
     output: [
       {
         type: "Location",
-        url: `${BULK_BASE_URL}locations.ndjson`,
+        url: `${BULK_BASE_URL}locations.ndjson${STORAGE_SAS}`,
       },
       {
         type: "Schedule",
-        url: `${BULK_BASE_URL}schedules.ndjson`,
+        url: `${BULK_BASE_URL}schedules.ndjson${STORAGE_SAS}`,
       },
-      ..._.sortBy(nextQueryArray, (q) => canonical(q)).map((q) => ({
+      _.sortBy(nextQueryArray, (q) => canonical(q)).map((q) => ({
         type: "Slot",
-        url: `${BULK_BASE_URL}${queryOutputFilename(q)}`,
+        url: `${BULK_BASE_URL}${queryOutputFilename(q)}${STORAGE_SAS}`,
         extension: {
           state: [q.state],
           currentAsOf: q.lastUpdated,
