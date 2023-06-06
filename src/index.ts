@@ -139,14 +139,14 @@ async function outputResults(results: QueryWithResult[], allFutureQueries: reado
         type: "Schedule",
         url: `${BULK_BASE_URL}schedules.ndjson${STORAGE_SAS}`,
       },
-      _.sortBy(nextQueryArray, (q) => canonical(q)).map((q) => ({
+      ...(_.sortBy(nextQueryArray, (q) => canonical(q)).map((q) => ({
         type: "Slot",
         url: `${BULK_BASE_URL}${queryOutputFilename(q)}${STORAGE_SAS}`,
         extension: {
           state: [q.state],
           currentAsOf: q.lastUpdated,
         },
-      })),
+      }))),
     ],
     error: [],
   };
